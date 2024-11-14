@@ -2,7 +2,10 @@ import streamlit as st
 from complete_race import display_complete_race
 from complete_race import race_lap_time
 from individual_lap import predict_lap_time
+from probability import driver_probabilities
+from probability import softmax
 import pandas as pd
+import matplotlib.pyplot as plt
 from model.model_train import mae,mse,r2,train_bias,train_variance,test_bias,test_variance
 
 
@@ -14,7 +17,7 @@ def convert_to_mm_ss_sss(predicted_lap_time):
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Page 1: Full Input", "Page 2: Minimal Input", "Page 3: Model Evaluation"])
+page = st.sidebar.radio("Go to", ["Page 1: Full Input", "Page 2: Minimal Input", "Page 3: Model Evaluation", "Page 4: Predicted Top 5 Winners" ])
 
 # Common dropdowns for Track, Driver, and Compound
 # track = st.selectbox("Select Track", options=["Baku", "Austin", "Spain", "Brazil"])
@@ -229,4 +232,82 @@ elif page == "Page 3: Model Evaluation":
         unsafe_allow_html=True
     )
 
+elif page == "Page 4: Predicted Top 5 Winners":
+    # Page Title
+    st.markdown(
+        """
+        <h1 style='text-align: center; font-size: 40px; font-weight: bold;'>Predicted Top 5 Winners</h1>
+        """, 
+        unsafe_allow_html=True
+    )
     
+    # Input for Track Selection
+    track = st.selectbox("Select Track", options=["Baku", "Austin", "Spain", "Brazil"])
+    
+    # Select Top 5 Drivers
+    drivers = st.multiselect(
+        "Select 5 Drivers", 
+        options=[
+            'GAS', 'PER', 'LEC', 'STR', 'MAG', 'ALB', 'KVY', 'HUL', 'RIC', 'VER', 
+            'NOR', 'HAM', 'VET', 'SAI', 'RUS', 'RAI', 'BOT', 'GRO', 'KUB', 'GIO', 
+            'ALO', 'TSU', 'OCO', 'MSC', 'LAT', 'MAZ', 'ZHO', 'PIA', 'DEV', 'SAR', 
+            'LAW', 'COL', 'BEA'
+        ],
+        default=['VER', 'HAM', 'BOT', 'LEC', 'SAI'],
+        max_selections=5
+    )
+    
+    # Validate Selection
+    if len(drivers) == 5:
+        # Call function to calculate probabilities
+        driver_probabilities = driver_probabilities(drivers, track)
+
+        # Normalize probabilities so they sum to 100%
+        total_probability = sum(
+            float(prob[0]) if isinstance(prob, list) else float(prob)
+            for prob in driver_probabilities.values()
+        )
+        normalized_probabilities = {
+            driver: (float(prob[0]) if isinstance(prob, list) else float(prob)) / total_probability * 100
+            for driver, prob in driver_probabilities.items()
+        }
+
+        # Display Driver Probabilities
+        st.markdown(
+            """
+            <h3 style='text-align: center; font-size: 30px;'>Driver Probabilities (Winner Prediction)</h3>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Display each driver's normalized probability
+        for driver, probability in normalized_probabilities.items():
+            st.write(f"{driver}: {probability:.2f}%")
+
+        # Display Pie Chart with normalized probabilities
+        st.markdown(
+            """
+            <h3 style='text-align: center; font-size: 30px;'>Probability Distribution (Pie Chart)</h3>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Pie Chart with normalized probabilities
+        fig, ax = plt.subplots()
+        ax.pie(
+            normalized_probabilities.values(),
+            labels=normalized_probabilities.keys(),
+            autopct='%1.2f%%',
+            startangle=140
+        )
+        ax.axis('equal')  # Equal aspect ratio ensures that pie chart is drawn as a circle.
+        st.pyplot(fig)
+
+        # Display Predicted Winner
+        predicted_winner = max(normalized_probabilities, key=normalized_probabilities.get)
+        st.markdown(
+            f"<h3 style='text-align: center; font-size: 24px;'>Predicted Winner: {predicted_winner}</h3>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.warning("Please select exactly 5 drivers for prediction.")
