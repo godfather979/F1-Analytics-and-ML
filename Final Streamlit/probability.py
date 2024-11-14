@@ -27,9 +27,9 @@ for lap_num, lap_time in enumerate(lap_times, start=1):
         print(f"Lap {lap_num} predicted time: {lap_time:.2f} seconds")
 
 
-def driver_probabilities(drivers,track):
+def driver_lap(drivers,track):
         
-    driver_lap_times = {}
+    lap_times_dict = {}
 
     for driver in drivers:
         lap_times = race_lap_time(
@@ -47,17 +47,17 @@ def driver_probabilities(drivers,track):
         
         )
 
-        driver_lap_times[driver] = lap_times
+        lap_times_dict[driver] = lap_times
 
-    return driver_lap_times
+    return lap_times_dict
 
 
 
-drivers_list = ['VER', 'HAM', 'NOR']
+drivers_list = ['VER', 'HAM', 'BOT','LEC','LAT']
 track = 'Spain'
 driver_total_times = {}
 
-driver_lap_times = driver_probabilities(drivers_list,track)
+driver_lap_times = driver_lap(drivers_list,track)
 
 for driver, lap_times in driver_lap_times.items():
     print(f"Lap times for driver {driver}:")
@@ -73,7 +73,7 @@ drivers = list(driver_total_times.keys())
 
 converted_total_times = [float(time) for time in total_times]
 print(converted_total_times)
-total_times_in_hours = [time / 3600 for time in converted_total_times]
+total_times_in_hours = [time / 60 for time in converted_total_times]
 print(total_times_in_hours)
 
 

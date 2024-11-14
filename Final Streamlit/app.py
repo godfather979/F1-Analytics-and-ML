@@ -2,11 +2,11 @@ import streamlit as st
 from complete_race import display_complete_race
 from complete_race import race_lap_time
 from individual_lap import predict_lap_time
-from probability import driver_probabilities
+from probability import driver_lap
 from probability import softmax
 import pandas as pd
 import matplotlib.pyplot as plt
-from model.model_train import mae,mse,r2,train_bias,train_variance,test_bias,test_variance
+# from model.model_train import mae,mse,r2,train_bias,train_variance,test_bias,test_variance
 
 
 def convert_to_mm_ss_sss(predicted_lap_time):
@@ -17,7 +17,7 @@ def convert_to_mm_ss_sss(predicted_lap_time):
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Page 1: Full Input", "Page 2: Minimal Input", "Page 3: Model Evaluation", "Page 4: Predicted Top 5 Winners" ])
+page = st.sidebar.radio("Go to", ["Page 1: Complete Race Analysis", "Page 2: Individual Lap Analysis", "Page 3: Predicted Top 5 Winners" , "Page 4: Model Evaluation" ])
 
 # Common dropdowns for Track, Driver, and Compound
 # track = st.selectbox("Select Track", options=["Baku", "Austin", "Spain", "Brazil"])
@@ -29,7 +29,7 @@ page = st.sidebar.radio("Go to", ["Page 1: Full Input", "Page 2: Minimal Input",
 # ])
 
 
-if page == "Page 1: Full Input": 
+if page == "Page 2: Individual Lap Analysis": 
     st.title("Lap Time Predictor - Full Input")
 
     
@@ -71,7 +71,7 @@ if page == "Page 1: Full Input":
         
         st.markdown(f"<div style='font-size: 36px; font-weight: bold;'>Predicted Lap Time: {formatted_predicted_time}</div>", unsafe_allow_html=True)
 
-elif page == "Page 2: Minimal Input":
+elif page == "Page 1: Complete Race Analysis":
     st.title("Lap Time Predictor - Minimal Input")
 
     # Minimal inputs required
@@ -151,7 +151,7 @@ elif page == "Page 2: Minimal Input":
         st.pyplot(fig)
 
 
-elif page == "Page 3: Model Evaluation":
+elif page == "Page 4: Model Evaluation":
 
 
     # Use HTML to center the title and style the text
@@ -171,19 +171,19 @@ elif page == "Page 3: Model Evaluation":
 
     # Display Mean Squared Error with custom styling
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>Mean Squared Error (MSE): {mse:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>Mean Squared Error (MSE): {1.2659692759609553:.4f}</p>",
         unsafe_allow_html=True
     )
 
     # Display Mean Absolute Error with custom styling
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>Mean Absolute Error (MAE): {mae:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>Mean Absolute Error (MAE): {0.4747450239477537:.4f}</p>",
         unsafe_allow_html=True
     )
 
     # Display R² Score with custom styling
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>R² Score: {r2:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>R² Score: {0.9927603566850081:.4f}</p>",
         unsafe_allow_html=True
     )
 
@@ -196,7 +196,7 @@ elif page == "Page 3: Model Evaluation":
 
     # Display Bias with explanation
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>Train Bias: {train_bias:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>Train Bias: {0.00450632973015002:.4f}</p>",
         unsafe_allow_html=True
     )
     st.markdown(
@@ -205,7 +205,7 @@ elif page == "Page 3: Model Evaluation":
     )
 
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>Test Bias: {test_bias:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>Test Bias: {0.009025949201741558:.4f}</p>",
         unsafe_allow_html=True
     )
     st.markdown(
@@ -215,7 +215,7 @@ elif page == "Page 3: Model Evaluation":
 
     # Display Variance with explanation
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>Train Variance: {train_variance:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>Train Variance: {0.6783425382271943:.4f}</p>",
         unsafe_allow_html=True
     )
     st.markdown(
@@ -224,7 +224,7 @@ elif page == "Page 3: Model Evaluation":
     )
 
     st.markdown(
-        f"<p style='font-size: 24px; font-weight: bold;'>Test Variance: {test_variance:.4f}</p>",
+        f"<p style='font-size: 24px; font-weight: bold;'>Test Variance: {0.9779296805506719:.4f}</p>",
         unsafe_allow_html=True
     )
     st.markdown(
@@ -232,7 +232,7 @@ elif page == "Page 3: Model Evaluation":
         unsafe_allow_html=True
     )
 
-elif page == "Page 4: Predicted Top 5 Winners":
+elif page == "Page 3: Predicted Top 5 Winners":
     # Page Title
     st.markdown(
         """
@@ -260,17 +260,41 @@ elif page == "Page 4: Predicted Top 5 Winners":
     # Validate Selection
     if len(drivers) == 5:
         # Call function to calculate probabilities
-        driver_probabilities = driver_probabilities(drivers, track)
+        drivers_lap_times = driver_lap(drivers, track)
+        driver_total_times = {}
 
-        # Normalize probabilities so they sum to 100%
-        total_probability = sum(
-            float(prob[0]) if isinstance(prob, list) else float(prob)
-            for prob in driver_probabilities.values()
-        )
-        normalized_probabilities = {
-            driver: (float(prob[0]) if isinstance(prob, list) else float(prob)) / total_probability * 100
-            for driver, prob in driver_probabilities.items()
-        }
+        for driver, lap_times in drivers_lap_times.items():
+            # print(f"Lap times for driver {driver}:")
+            total_time = sum(lap_times)  # Calculate the sum of lap times for the driver
+            driver_total_times[driver] = total_time
+            # for lap_num, lap_time in enumerate(lap_times, start=1):
+            #     print(f"  Lap {lap_num}: {lap_time:.2f} seconds")
+            print(f"Total time for driver {driver}: {total_time:.2f} seconds\n")
+
+        total_times = list(driver_total_times.values())
+        drivers = list(driver_total_times.keys())
+
+
+        converted_total_times = [float(time) for time in total_times]
+        print(converted_total_times)
+        total_times_in_hours = [time / 60 for time in converted_total_times]
+        print(total_times_in_hours)
+
+
+        driver_probabilities = softmax(total_times_in_hours)
+
+        driver_probabilities_dict = dict(zip(drivers, driver_probabilities))
+
+
+        # # Normalize probabilities so they sum to 100%
+        # total_probability = sum(
+        #     float(prob[0]) if isinstance(prob, list) else float(prob)
+        #     for prob in driver_probabilities.values()
+        # )
+        # normalized_probabilities = {
+        #     driver: (float(prob[0]) if isinstance(prob, list) else float(prob)) / total_probability * 100
+        #     for driver, prob in driver_probabilities.items()
+        # }
 
         # Display Driver Probabilities
         st.markdown(
@@ -281,8 +305,8 @@ elif page == "Page 4: Predicted Top 5 Winners":
         )
 
         # Display each driver's normalized probability
-        for driver, probability in normalized_probabilities.items():
-            st.write(f"{driver}: {probability:.2f}%")
+        for driver, probability in driver_probabilities_dict.items():
+            st.write(f"{driver}: {probability*100:.2f}%")
 
         # Display Pie Chart with normalized probabilities
         st.markdown(
@@ -295,8 +319,8 @@ elif page == "Page 4: Predicted Top 5 Winners":
         # Pie Chart with normalized probabilities
         fig, ax = plt.subplots()
         ax.pie(
-            normalized_probabilities.values(),
-            labels=normalized_probabilities.keys(),
+            driver_probabilities_dict.values(),
+            labels=driver_probabilities_dict.keys(),
             autopct='%1.2f%%',
             startangle=140
         )
@@ -304,7 +328,7 @@ elif page == "Page 4: Predicted Top 5 Winners":
         st.pyplot(fig)
 
         # Display Predicted Winner
-        predicted_winner = max(normalized_probabilities, key=normalized_probabilities.get)
+        predicted_winner = max(driver_probabilities_dict, key=driver_probabilities_dict.get)
         st.markdown(
             f"<h3 style='text-align: center; font-size: 24px;'>Predicted Winner: {predicted_winner}</h3>",
             unsafe_allow_html=True
