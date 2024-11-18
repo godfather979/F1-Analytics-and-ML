@@ -92,7 +92,7 @@ def display_complete_race(air_temp, humidity, pressure, track_temp,
     'PredictedLapTime': lap_times               # Use the lap_times list
 })
     
-    print(lap_times_df)
+    # print(lap_times_df)
 
     fig,ax = plt.subplots(figsize=(10, 6))
     display_graph(driver,track)

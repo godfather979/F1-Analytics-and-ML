@@ -1,7 +1,9 @@
 import streamlit as st
+import datetime
 from complete_race import display_complete_race
 from complete_race import race_lap_time
 from individual_lap import predict_lap_time
+from average_lap_graph import avg_total_duration
 from probability import driver_lap
 from probability import softmax
 import pandas as pd
@@ -19,18 +21,11 @@ def convert_to_mm_ss_sss(predicted_lap_time):
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Page 1: Complete Race Analysis", "Page 2: Individual Lap Analysis", "Page 3: Predicted Top 5 Winners" , "Page 4: Model Evaluation" ])
 
-# Common dropdowns for Track, Driver, and Compound
-# track = st.selectbox("Select Track", options=["Baku", "Austin", "Spain", "Brazil"])
-# driver = st.selectbox("Select Driver", options=[
-#     'GAS', 'PER', 'LEC', 'STR', 'MAG', 'ALB', 'KVY', 'HUL', 'RIC', 'VER', 
-#     'NOR', 'HAM', 'VET', 'SAI', 'RUS', 'RAI', 'BOT', 'GRO', 'KUB', 'GIO', 
-#     'ALO', 'TSU', 'OCO', 'MSC', 'LAT', 'MAZ', 'ZHO', 'PIA', 'DEV', 'SAR', 
-#     'LAW', 'COL', 'BEA'
-# ])
+
 
 
 if page == "Page 2: Individual Lap Analysis": 
-    st.title("Lap Time Predictor - Full Input")
+    st.title("Specific Lap Time Predictor")
 
     
 
@@ -72,7 +67,7 @@ if page == "Page 2: Individual Lap Analysis":
         st.markdown(f"<div style='font-size: 36px; font-weight: bold;'>Predicted Lap Time: {formatted_predicted_time}</div>", unsafe_allow_html=True)
 
 elif page == "Page 1: Complete Race Analysis":
-    st.title("Lap Time Predictor - Minimal Input")
+    st.title("Complete Race Analysis")
 
     # Minimal inputs required
     track = st.selectbox("Select Track", options=["Baku", "Austin", "Spain", "Brazil"])
@@ -92,7 +87,7 @@ elif page == "Page 1: Complete Race Analysis":
     track_temp = st.number_input("Track Temperature (°C)")
     wind_speed = st.number_input("Wind Speed (m/s)")
 
-    if st.button("Predict Lap Time - Minimal"):
+    if st.button("Analyse Stratergy"):
         # predicted_time = predict_lap_time(
         #     driver=driver,
         #     lap_number=1,  # Default value for minimal input
@@ -131,9 +126,23 @@ elif page == "Page 1: Complete Race Analysis":
         driver=driver,
         track=track)
 
-        lap_times_df = pd.DataFrame(lap_times)
-        st.write("Lap Times for Each Lap:")
-        st.dataframe(lap_times_df,height=250,width=500,hide_index=False)
+       
+
+        
+
+        lap_times_df = pd.DataFrame({
+        'LapNumber': range(1, len(lap_times) + 1),  # Generate lap numbers starting from 1
+        'PredictedLapTime': lap_times})
+        total_lap_time = lap_times_df['PredictedLapTime'].sum()
+        total_lap_time= round(total_lap_time,3)
+        hours = int(total_lap_time) // 3600
+        minutes = (int(total_lap_time) % 3600) // 60
+        seconds = total_lap_time % 60
+        race_time = f"{hours}:{minutes:02}:{seconds:.3f}"
+        st.markdown(f"## **Lap Times for Each Lap:**")
+        st.dataframe(lap_times_df,height=250,width=500,hide_index=True)
+        st.markdown(f"### **Predicted Total Race time: {race_time}**")
+        
 
         
 

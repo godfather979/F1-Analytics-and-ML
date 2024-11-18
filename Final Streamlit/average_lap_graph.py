@@ -33,7 +33,7 @@ def display_graph(driver,track):
     driver_data = track_data[track_data['Driver'] == driver.upper()]
     average_laps = driver_data.groupby(['track','LapNumber'])['LapTimeSeconds'].mean().reset_index()
 
-    print(average_laps)
+    # print(average_laps)
 
     # plt.figure(figsize=(8, 5))
     sns.scatterplot(x='LapNumber', y='LapTimeSeconds', data=average_laps)
@@ -47,3 +47,11 @@ def display_graph(driver,track):
     # plt.show()
 
 # display_graph('HAM','Austin')
+
+def avg_total_duration(driver,track):
+    track_data = data[data['track'] == track]
+    driver_data = track_data[track_data['Driver'] == driver.upper()]
+    average_laps = driver_data.groupby(['track','LapNumber'])['LapTimeSeconds'].mean().reset_index()
+
+    total_lap_time = average_laps['LapTimeSeconds'].sum()
+    return total_lap_time

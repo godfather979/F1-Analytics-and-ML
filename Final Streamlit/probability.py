@@ -23,8 +23,8 @@ lap_times = race_lap_time(
     track="Austin"
 )
 
-for lap_num, lap_time in enumerate(lap_times, start=1):
-        print(f"Lap {lap_num} predicted time: {lap_time:.2f} seconds")
+# for lap_num, lap_time in enumerate(lap_times, start=1):
+#         print(f"Lap {lap_num} predicted time: {lap_time:.2f} seconds")
 
 
 def driver_lap(drivers,track):
@@ -53,41 +53,41 @@ def driver_lap(drivers,track):
 
 
 
-drivers_list = ['VER', 'HAM', 'BOT','LEC','LAT']
-track = 'Spain'
-driver_total_times = {}
+# drivers_list = ['VER', 'HAM', 'BOT','LEC','LAT']
+# track = 'Spain'
+# driver_total_times = {}
 
-driver_lap_times = driver_lap(drivers_list,track)
+# driver_lap_times = driver_lap(drivers_list,track)
 
-for driver, lap_times in driver_lap_times.items():
-    print(f"Lap times for driver {driver}:")
-    total_time = sum(lap_times)  # Calculate the sum of lap times for the driver
-    driver_total_times[driver] = total_time
-    for lap_num, lap_time in enumerate(lap_times, start=1):
-        print(f"  Lap {lap_num}: {lap_time:.2f} seconds")
-    print(f"Total time for driver {driver}: {total_time:.2f} seconds\n")
+# for driver, lap_times in driver_lap_times.items():
+#     print(f"Lap times for driver {driver}:")
+#     total_time = sum(lap_times)  # Calculate the sum of lap times for the driver
+#     driver_total_times[driver] = total_time
+#     for lap_num, lap_time in enumerate(lap_times, start=1):
+#         print(f"  Lap {lap_num}: {lap_time:.2f} seconds")
+#     print(f"Total time for driver {driver}: {total_time:.2f} seconds\n")
 
-total_times = list(driver_total_times.values())
-drivers = list(driver_total_times.keys())
-
-
-converted_total_times = [float(time) for time in total_times]
-print(converted_total_times)
-total_times_in_hours = [time / 60 for time in converted_total_times]
-print(total_times_in_hours)
+# total_times = list(driver_total_times.values())
+# drivers = list(driver_total_times.keys())
 
 
-probabilities = softmax(total_times_in_hours)
+# converted_total_times = [float(time) for time in total_times]
+# print(converted_total_times)
+# total_times_in_hours = [time / 60 for time in converted_total_times]
+# print(total_times_in_hours)
 
 
-# Display the probabilities for each driver
-print("Driver Probabilities (Winner Prediction):")
-for driver, probability in zip(drivers, probabilities):
-    print(f"{driver}: {probability*100:.2f}%")
+# probabilities = softmax(total_times_in_hours)
 
-# Find the predicted winner
-winner_index = probabilities.index(max(probabilities))
-predicted_winner = drivers[winner_index]
-print(f"\nPredicted winner: {predicted_winner}")
+
+# # Display the probabilities for each driver
+# print("Driver Probabilities (Winner Prediction):")
+# for driver, probability in zip(drivers, probabilities):
+#     print(f"{driver}: {probability*100:.2f}%")
+
+# # Find the predicted winner
+# winner_index = probabilities.index(max(probabilities))
+# predicted_winner = drivers[winner_index]
+# print(f"\nPredicted winner: {predicted_winner}")
 
 
