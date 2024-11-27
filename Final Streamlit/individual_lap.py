@@ -3,7 +3,7 @@ import pandas as pd
 
 
 ## import model
-model = joblib.load('model/my_model.pkl')
+model = joblib.load('my_model.pkl')
 
 
 
